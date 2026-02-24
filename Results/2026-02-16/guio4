@@ -60,6 +60,7 @@ kable(genomas) %>% kable_styling()
 ## Desafío
 1. ¿Qué diferencia hay entre las líneas 7 y 8 de la tabla anterior?
 La única diferencia entre ambos es que en la línea 7 pone GCF mientras que en la 8 pone GCA. GCA representa un ensamblaje de referencia curado por NCBI, mientras que GCA representa un ensamblajes primarios enviados directamente por investigadores, son secuencias originales, no necesariamente curadas o anotadas.
+Son lo mismo pero con disitnto nombre. Uno es de la base de datos propia y otro de la compartida.
 
 2. Busca una función de R que te permita identificar las líneas repetidas en un
    marco de datos.

@@ -1,0 +1,143 @@
+---
+title: "Práctica 8 BLAST"
+format: html
+---
+
+# Ejercicio 1 #
+```{bash}
+if [ ! -e ../../data/buchnera.paa ]; then
+   # Creamos un archivo para enmascarar zonas de baja complejidad:
+   if [ ! -e buchnera_seg.asnb ]; then
+      ~/bin/segmasker -in ../../data/buchnera.fa \
+                -infmt fasta \
+                -parse_seqids \
+                -outfmt maskinfo_asn1_bin \
+                -out ../../data/buchnera_seg.asnb
+   fi
+   # Y indexamos el archivo FASTA para BLAST:
+   ~/bin/makeblastdb  -in ../../data/buchnera.fa \
+                -input_type fasta \
+                -dbtype prot \
+                -parse_seqids \
+                -mask_data ../../data/buchnera_seg.asnb \
+                -out ../../data/buchnera \
+                -title "Proteoma de Buchnera"
+fi
+```
+```{bash}
+if [ ! -e ../../data/blochmannia.paa ]; then
+   # Creamos un archivo para enmascarar zonas de baja complejidad:
+   if [ ! -e buchnera_seg.asnb ]; then
+       ~/bin/segmasker -in ../../data/blochmannia.fa \
+                -infmt fasta \
+                -parse_seqids \
+                -outfmt maskinfo_asn1_bin \
+                -out ../../data/blochmannia_seg.asnb
+   fi
+   # Y indexamos el archivo FASTA para BLAST:
+  ~/bin/makeblastdb  -in ../../data/blochmannia.fa \
+                -input_type fasta \
+                -dbtype prot \
+                -parse_seqids \
+                -mask_data ../../data/blochmannia_seg.asnb \
+                -out ../../data/blochmannia \
+                -title "Proteoma de Buchnera"
+fi
+```
+REALIZAR LAS BÚSQUEDAS DE BLASTP
+```{bash}
+~/bin/blastp -query ../../data/buchnera.fa \
+       -db ../../data/blochmannia \
+       -out buc2blo.txt \
+       -outfmt '6 qseqid sseqid qlen slen length evalue bitscore' \
+       -evalue 0.001 \
+       -max_target_seqs 1
+```
+
+```{bash}
+~/bin/blastp -query ../../data/blochmannia.fa \
+       -db ../../data/buchnera \
+       -out blo2buc.txt \
+       -outfmt '6 qseqid sseqid qlen slen length evalue bitscore' \
+       -evalue 0.001 \
+       -max_target_seqs 1
+```
+
+```{r}
+buc2blo <- read.table(
+   'buc2blo.txt',
+   col.names = c('query', 'subject', 'qlen', 'slen',
+                 'length', 'evalue', 'bitscore')
+)
+blo2buc <- read.table(
+   'blo2buc.txt',
+   col.names = c('query', 'subject', 'qlen', 'slen',
+                 'length', 'evalue', 'bitscore')
+)
+```
+
+Función match: busca los elementos del primer argumento en el segundo y nos devuelve los resultado en otra columna.
+
+Permite sacar la tabla de coincidencias
+```{r}
+buc2blo$reverse <- blo2buc[
+   match(buc2blo$subject, blo2buc$query),
+   'subject'
+]
+coincidencias <- buc2blo[
+   buc2blo$query == buc2blo$reverse,
+   c('query', 'subject')
+]
+```
+
+Pero para que sea más visual. Hayq ue asegurarse que los valores E de las parejas que coinciden sean bajos. Que no hayan muchos gaps (que la distancia entre una secuencia y otra, donde empieza y donde acaba y espacios entre medias no sean muy grandes).
+
+#Ejercicio 2. PSI-BLAST#
+```{bash}
+# Como Swissprot debería estar ya descargada en `../../data`, podemos sacar
+# de ahí la secuencia de la proteína escogida:
+blastdbcmd -db ../../data/swissprot -entry P39615 -out P39615.fa
+
+# Y ahora la usamos como query en psi-blast:
+psiblast -db ../../data/swissprot \
+         -query P39615.fa \
+         -out P39615.blastout.txt \
+         -evalue 0.1 \
+         -outfmt 7 \
+         -inclusion_ethresh 0.001 \
+         -num_iterations 7 \
+         -matrix BLOSUM62
+```
+   
+Se hace el PSI-BLAST a ver si proteinas parecidas pero no mucho se asemejan lo suficiente como para considerarse familia.
+
+Usamos un loop para no escribirlo todo otra vez para cada proteína.
+for "proteina" (como variable) in Q5UPT2 ... (los valores que nos interesan); do
+el loop debe acabar con un done: psiblast 
+
+El E-valor es alto para encontrar más similitudes.
+   
+
+#Ejercicio 3. Origen de la contaminación en un archivo FASTQ#  
+
+SELECCIÓN ALEATORIA DE 20 QUERIES
+```{r}
+ library('Biostrings')
+unmapped <- readDNAStringSet('../../data/contaminacion.fa.gz')
+n <- length(unmapped)
+muestra <- unmapped[sample(1:n, 20)]
+writeXStringSet(muestra, 'muestra.fa')
+```
+BLASTN REMOTO
+```{bash}
+if [ ! -e resultado.txt ]; then
+  ~/bin/blastn -query muestra.fa \
+          -db nr \
+          -out resultado.txt \
+          -outfmt '6 qaccver saccver length qlen qstart qend evalue bitscore staxid' \
+          -max_target_seqs 1 \
+          -evalue 0.001 \
+          -remote
+fi
+```
+

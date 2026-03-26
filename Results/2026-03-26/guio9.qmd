@@ -1,0 +1,143 @@
+---
+title: "Práctica 9"
+format: 
+  html:
+    embed-resources: true
+---
+
+#Práctica 9: Reconstrucción filogenética#
+
+Objetivos:
+
+Obtener una filogenia calibrada de homininos y algunos primates, a partir de secuencias mitocondriales.
+
+Ejercicio 1: 
+
+1.1 Leer los datos en R
+
+```{r}
+library(phangorn)
+mtdna <- read.phyDat('../../data/mtDNA.fasta', format = 'fasta')
+glance(mtdna)
+```
+
+Sería sensato reducir el conjunto de datos. ¿Qué secuencias eliminarías? Si quieres, puedes intentarlo con la función subset().
+
+1.2 Escoger el modelo de evolución
+
+```{r}
+modelos <- modelTest(mtdna, control = pml.control(trace = 0))
+```
+
+```{r}
+modelos <- modelTest(mtdna, control = pml.control(trace = 0),
+                     multicore = TRUE, mc.cores = 2)
+```
+
+Se obtiene un marco de datos. Nos tenemos que fijar en el AIC o BIC. Al ser un marco de datos y lo podemos ordenar. \> modelos \[order(modelos\$BIC),\]
+
+Para extraer más datos usamos estos comandos.
+
+> fit \<- as.pml(modelos, 'GTR+G(4)+I') fit
+
+> fit \<- as.pml(modelos, 'BIC') fit
+
+1.2.1 NJ y UPGMA
+
+Para ver mejor el árbol
+#| fig-width: 10
+#| fig-height: 10 
+Cambianod los números ajustamos a la mejor visualización.
+
+```{r}
+#| fig-width: 10
+#| fig-height: 10 
+mt_nj    <-    NJ(dist.dna(as.DNAbin(mtdna), model = 'TN93', gamma = 0.93))
+mt_upgma <- upgma(dist.dna(as.DNAbin(mtdna), model = 'TN93', gamma = 0.93))
+plot(midpoint(mt_nj))
+add.scale.bar()
+
+plot(mt_upgma)
+axisPhylo()
+```
+
+¿Por qué usamos midpoint() al representar gráficamente el árbol de NJ?
+
+1.3 Enraizar el árbol
+```{r}
+enraizado <- root(mt_nj, 'G.gorilla_D38114')
+```
+Se ha creado una copia del árbol de arriba pero con la raiz. Para visualizarlo en la consola se pone:
+> plot(midpoint(enraizado))
+
+```{r}
+veros <- pml_bb(mtdna, model = 'GTR+G(4)+I',
+                control = pml.control(trace = 0))
+```
+
+Enraizamos el árbol con gorila como outgroup.
+```{r}
+#| fig-width: 10
+#| fig-height: 10 
+mt_ml <- root(veros$tree, 'G.gorilla_D38114')
+plot(midpoint(mt_ml))
+nodelabels()
+```
+```{r}
+#| fig-width: 5
+#| fig-height: 5
+homo <- extract.clade(mt_ml, 62)
+plot(midpoint(homo))
+```
+1.4 Con datación de puntas (tip dating)
+```{r}
+fechas <- c(0, 0, 0, 0, 0, 0, 0, 0, 0,
+              -400000,
+              -39000, -50000, -110000, -110000,
+              -39820, -40096, -38515, -38310, -39000, -40000, -41210,
+              -42430, -42540, -43230, -43780, -44290, -44770, -49000,
+              -50000, -82752, -65000, -122287, -110450,
+              0, 0, 0, 0, 0, 0, 0, 0, 0)
+setNames(fechas, names(mtdna))
+```
+```{r}
+fit_td <- pml_bb(mtdna, model = 'GTR+G(4)+I', method = 'tipdated',
+                 tree = enraizado,
+                 tip.dates = fechas, rearrangement = 'NNI',
+                 control = pml.control(trace = 0))
+```
+
+El objetivo es que sea "ultramétrico", que se respete la edad/ tiempo en el apareció.
+
+```{r}
+#| fig-width: 10
+#| fig-height: 15
+plot(fit_td)
+```
+```{r}
+#| fig-width: 5
+#| fig-height: 5
+plotTreeTime(fit_td$tree, fechas)
+```
+
+estimate.mu()
+estimate.date()
+Estima la edad en función del número de mutaciones que le faltan a las secuencias arcaicas. Importante que esten todas las fechas en las mismas unidades.
+
+Objetivo:
+Ver a que velocidad está mutando el ADN mitocondrial y estimlar fechas y edades.
+
+```{r}
+estimate.mu(mt_ml, fechas, p.tol = 0.05)
+```
+El número de bases que cambian al año en el genoma mitocondrial
+```{r}
+estimate.dates (mt_ml, fechas, mu = estimate.mu(mt_ml, fechas),
+               min.date = .Machine$double.xmax, show.steps = 0,
+               opt.tol = 1e-8, nsteps = 1000,
+               lik.tol = 0, is.binary.phylo(mt_ml))
+```
+
+
+
+

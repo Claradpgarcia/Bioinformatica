@@ -1,0 +1,155 @@
+---
+title: "Guio10"
+author: "Clara"
+format: html
+embed-resources: true
+engine: knitr
+---
+
+# Práctica 10: Ensamblaje de genomas
+
+## Objetivo
+
+Ensamblar el genoma de un eucariota diploide con lecturas de PacBio de alta fidelidad.
+
+## Preparación
+
+### Hifiasm
+
+Se ha instalado Hifiasm mediante conda-
+
+## Datos
+
+Arabidopsis thaliana, ecotipo Columbia (Col-0), con la tecnología SMRT de PacBio (proyecto PRJEB50694).
+
+## Revisión de los datos
+
+#### ¿Cuántas secuencias contiene el archivo?
+
+```{bash}
+zgrep -c "^>" ../../data/At4.10.fa
+```
+
+el grep va linea por línea contando (-c es el comando que hace que cuenten)
+
+#### ¿Qué longitudes mínima, media y máxima tienen las secuencias?
+
+```{bash}
+cat ../../data/At4.10.fa | awk '
+    /^>/ {if (seqlen) {print seqlen}; seqlen=0; next} 
+    {seqlen += length($0)} 
+    END {print seqlen}
+' | awk '
+    {
+        sum+=$1; 
+        if(min==""){min=max=$1}; 
+        if($1>max){max=$1}; 
+        if($1<min){min=$1}; 
+        count++
+    } 
+    END {
+        print "Total secuencias: " count;
+        print "Mínima: " min; 
+        print "Máxima: " max; 
+        print "Media: " sum/count; 
+        print "Total bases: " sum
+    }'
+```
+
+Otra opción más clara de compresión de los comandos
+
+```{bash}
+cat ../../data/At4.10.fa | awk '
+BEGIN {min=1e12; max=0; sum=0; len=0; n=0}
+{
+  if ($0 ~ /^>/) {
+    if (len > 0) {
+      if (len < min) min = len
+      if (len > max) max = len
+      sum += len
+      n++
+    }
+    len = 0
+  } else {
+    len += length($0)
+  }
+}
+END {
+  # última secuencia
+  if (len > 0) {
+    if (len < min) min = len
+    if (len > max) max = len
+    sum += len
+    n++
+  }
+  print "Secuencias:", n
+  print "Longitud mínima:", min
+  print "Longitud media:", sum/n
+  print "Longitud máxima:", max
+}'
+```
+
+awk --\> indica cosas que haya que ejecutar antes que el resto y se da unos valores concretos al mínimo y al máximo.
+
+#### ¿Cuál es el número total de bases?
+
+Total bases: 250599484
+
+#### Si se estimara que el genoma a ensamblar fuera de sólo 19 millones de bases, ¿cuál sería la cobertura esperada?
+
+Cobertura:250599484/19000000 = 13.18945
+
+En termino medio cada base se ha leido 13 veces, el problema es que la cobertura es muy irregular, y puede ser que haya fragemntoes que no se hayan leido, lo que es un problema. Para que se considere suficiente debe llegar al menos a 30 de cobertura, pero 60 sería aun mejor. Si tenemos en cuenta que estamos seuceniando un organismo eucariota diploide deberíamos tener el doble de cobertura para que haya suficiente como para tener la copia del padre y de la madre leidas al completo
+
+## Ensamblaje
+
+Se crea la carpeta asm1
+
+```{bash}
+#| cache: true
+if [ ! -e asm1/At4.bp.p_ctg.gfa ]; then
+   /Users/claragarciacardona/miniconda3/bin/hifiasm -o asm1/At4 -t 2 -f 0 ../../data/At4.10.fa 2> asm1/hifiasm.log
+fi
+```
+
+### Consulta la ayuda de hifiasm (hifiasm -h) y contesta las preguntas siguientes:
+
+#### ¿Los parámetros corresponden al ensamblaje de un genoma haploide o diploide?
+
+Según ayuda,los archivos tienen sufijos .bp.hap1 y bp.hap2 que corresponden con el haplotipo del padre y de la madre. Por tanto es un genoma diploide.
+
+#### ¿Qué nivel de eliminación de duplicaciones hemos aplicado? (El paso de eliminar duplicaciones sirve para que las zonas de alta heterocigosidad no sean ensambladas como contigs diferentes).
+
+-l INT purge level. 0: no purging; 1: light; 2/3: aggressive \[0 for trio; 3 for unzip\]
+
+#### Si tuvieramos lecturas ultra-largas, ¿con qué opción o argumento añadiríamos esa información?
+
+--ul \[r1.fq,r2.fq,...\]
+
+## Evaluación del resultado
+
+Consulta la descripción de los archivos de salida que encontrarás en este enlace y contesta las preguntas siguientes:
+
+#### ¿Dónde están las secuencias que componen el ensamblaje?
+El ensamblaje completo está en: At4.bp.p_ctg.gfa
+El ensamblaje del uno de los progenitores At4.bp.hap1.p_ctg.gfa, el otro es At4.bp.hap2.p_ctg.gfa
+
+#### En los archivos .gfa, ¿qué son las líneas que empiezan por ‘A’?
+La A significa alineamientos y la S son las secuencias.
+
+#### ¿Qué información tiene los archivos .bed?
+Contiene las coordenadas de las regiones de baja calidad.
+
+#### ¿Cuál es la cobertura media estimada de las secuencias homocigotas?
+12 es la cobertura media. El pico en el histograma del archivo .log es en 12, que se asemeja mucho al 13 que habiamos predicho.
+Se hacen 2 correcciones de errores donde dismiuye el pico del 1 pero se mantiene el 12. 
+Si fuera un organismo heterocigoto deberían hacer un pico en el 6 tambien (la mitad), pero no lo hay pues se trata de una planta altamente homocigota diseñada especialmente para el laboratorio.
+
+#### ¿Y la de las heterocigotas?
+No hay un segundo pico que podría indicar que es heterocigota por lo que se intuye que es un organismo homocigoto.
+
+```{bash}
+awk '(/^S/){print ">" $2 "\n" $3}' asm1/At4.bp.p_ctg.gfa > asm1/At4.fa
+```
+
+

@@ -1,0 +1,116 @@
+---
+title: "guio11"
+format: html
+editor: visual
+embed-resources: true
+engine: knitr
+---
+
+# Práctica 11: Anotación
+
+## Datos
+
+Las secuencias que vamos a anotar son el ensamblaje obtenido en la práctica anterior, que voy a suponer que se encuentran en una carpeta results/2026-04-16.
+
+Descargamos de Uniprot 6023 proteínas que sabemos que codifica el cromosoma 4 de Arabidopsis thalina.
+
+## Resultados
+
+### Modificación de los nombres de las proteínas
+
+Simplificar las cabeceras de las secuencias de líneas extensas: \>sp\|Q0WVX5\|SSY4_ARATH Probable starch synthase 4, chloroplastic/amyloplastic OS=Arabidopsis thaliana OX=3702 GN=SS4 PE=1 SV=1
+
+A líneas más simples: \>Q0WVX5
+
+#### Ejercicio 1:
+
+Sabiendo que una forma de hacerlo es la siguiente, incluye la orden en un bloque de Bash de tu documento de Quarto de tal manera que el archivo de entrada esté en tu carpeta data y el de salida en la misma carpeta de trabajo de la práctica actual, y además, que sólo se ejecute si el archivo de salida proteinas.fasta no existe.
+
+```{bash}
+if [ ! -e proteinas.fasta ]; then 
+awk '(/^>/){split($1, A, /\|/); print ">" A[2]}(/^[^>]/){print $0}' ../../data/uniprot.fasta > proteinas.fasta
+fi
+```
+
+### Análisis de los resultados
+
+Nos hemos descargados los resultados de RepeatModeler desde aula virtual
+
+#### Ejercicio 2
+
+Explora los resultados de RepeatModeler y trata de contestar las preguntas siguientes.
+
+1.  ¿Cuántas familias de elementos transponibles se han encontrado? Usando el archivo At4-rmod.log. En el tercer ciclo salen 24 familias distintas.
+
+2.  ¿Cuánto duró la ejecución del programa? En el archivo At4-rmod.log indica que el tiempo es: Program Time: 01:02:16 (hh:mm:ss) Elapsed Time
+
+3.¿Cuál dirías que es el archivo de salida más importante? El archivo At4-rmod.log es un archivo a modo resumen que permite obtener informacion de forma rápida.
+
+Un archivo importante es At4-families.fa pues contiene las secuencias consenso de las familias de elementos transponibles que el programa ha identificado.
+
+Un ejemplo: \>rnd-2_family-371#LTR/Gypsy ( Recon Family Size = 98, Final Multiple Alignment Size = 120 )
+
+Son secuecnias LTR (largas) y Gypsy, la clase de elemento transponible que son. El 98 implica que hay 98 familias similares con las que ha podido alinear para la secuencia consenso
+
+Otro archivo esencial es el At4-families.stk: son los alineamientos en formato stk
+
+### Suavizar la máscara
+
+#### Ejercicio 3
+
+Instalamos el programa bedtools
+
+2.  Utiliza el ensamblaje original como archivo FASTA de entrada y el archivo GFF que ha producido RepetaMasker como coordenadas de las regiones a enmascarar. Lee el manual de bedtools maskfasta en este enlace y genera el ensamblaje con máscara suave llamado At4.soft.fa.
+
+```{bash}
+if [ ! -e "At4.soft.fa" ]; then bedtools maskfasta -fi ../2026-04-16/asm1/At4.fa -bed RM01/At4.fa.out.gff -fo At4.soft.fa -soft
+fi
+```
+
+### GALBA
+
+GALBA usa miniprot para mapear las evidencia qe le han proorcionadao (las secuencias descargadas contra el ensamblaje) Y Augustus (se entrena automaticamente para identificar los genes mediante el alineamiento) \#### Ejercicio 4
+
+```{bash}
+#| eval: false
+export TSEBRA_PATH=/home/joiglu/bin/TSEBRA/bin/
+export MINIPROTHINT_PATH=/home/joiglu/bin/miniprothint/
+
+galba.pl --species="Arabidopsis thaliana" \
+         --genome=At4.soft.fa \
+         --prot_seq=proteinas.fasta
+```
+
+Usamos la carpeta descargada galba.zip del aula virtual
+
+#### Ejercicio 5
+
+Échales un vistazo a los archivos de salida de GALBA y trata de sacar algo en claro.
+
+**LOS ARCHIVOS CLAVES:**
+
+[galba.gtf:]{.underline} Es el archivo más importante. Tiene la anotación final de los genes en formato GTF. Se indican las coordenadas del genoma en las que están los exones, intrones y CDS de los genes que GALBA ha predicho.
+
+[galba.aa:]{.underline} Tiene las secuencias de aminoácidos de los genes predichos en formato FASTA.
+
+[galba.codingseq:]{.underline} Son las secuencias de nucleótidos de las regiones codificantes (CDS) en formato FASTA.
+
+**ARCHIVOS DEL PROCESO Y EVIDENCIAS:**
+
+[hintsfile.gff]{.underline}: Muestra las "pistas" que GALBA creó basandose en las proteínas iniciales. Muestra dónde hay alineamientos de proteínas que ayudaron a AUGUSTUS a "entrenarse"
+
+[miniprot_trainingGenes.gtf]{.underline}: Los genes de alta fidelidad que s ehan enconctrado con miniprot yq ue han sido usado para el entrenamiento inicial.
+
+[prot_seq_all.fa]{.underline}: Son proteínas de entrada usadas para la anotación.
+
+[genome_header.map]{.underline}: GALBA acorta los nombres de los cromosomas o de los contigos si son mu largos y en este archivo hay una recopilación de las abreviaciones para saber que es cada uno.
+
+**PARA SABER SI FALLÓ ALGO:**
+
+[GALBA.log:]{.underline} Donde queda recogido paso a paso qué hizo el programa y cuánto tardó.
+
+[optimize_augustus.stdout]{.underline}: Contiene detalles técnicos de cómo se ajustaron los parámetros de AUGUSTUS para este genoma específico.
+
+[what-to-cite.txt]{.underline}: Recopilatorio de a qué autores debes citar si publicas.
+
+[Carpeta errors:]{.underline} Si algo falla en algun paso intermedio se recopilan aquí los errores, si está vacio todo ha ido bien.

@@ -1,0 +1,157 @@
+---
+title: "Guio12"
+format: html
+embed-resources: true
+engine: knitr
+---
+
+# Práctica 12. Análisis de expresión diferencial
+
+## Datos:
+
+Se han descargado en la carpeta de data los dos archivos .tsv con los datos
+
+## Exploración de los datos:
+
+```{r}
+muestras <- read.table('../../data/dme_elev_samples.tsv', header = TRUE)
+genex <- read.table('../../data/salmon.merged.gene_counts.tsv',
+                    header = TRUE)
+```
+
+### Ejercicio 1
+
+1.  Usa la función paste() para añadir una columna a muestras que contenga la población y la temperatura unidas por \_.
+
+```{r}
+muestras$population_temp <- paste(muestras$population, muestras$temp, sep = "_")
+head(muestras)
+```
+
+2.  ¿Cuál es el número total de lecturas por muestra?
+
+```{r}
+colSums(genex[ , -c(1,2)])
+```
+
+3.  ¿Los recuentos tienen distribuciones parecidas entre muestras?
+
+```{r}
+#| fig-width: 10
+#| fig-height: 5 
+boxplot(genex[, -c(1,2)], las = 2, main = "Distribución de recuentos por muestra" , ylim = c(0, 5000))
+```
+
+Si, son similares. La mayoría de lecturas están condensadas por debajo de los 500000 con algún outlier por arriba
+
+4.  ¿Cuántos genes no se expresan en absoluto en ninguna de las muestras?
+
+```{r}
+sum(rowSums(genex[ , -c(1,2)]) == 0)
+```
+
+## Crear el objeto de clase DESeqDataSet
+
+```{r}
+suppressMessages(library('DESeq2'))
+all(names(genex)[3:14] == muestras$sample)
+```
+Es una comprobación. Existe un comando que se llama stopifnot() y se usa para para un ejecutable si hay algo que no cuadra/funciona. 
+En este caso estamos comprobando que las columnas de muestras coinciden con la primera fila de genex, si no lo hacen entonces todo el estudio estará mal.
+
+```{r}
+# Pasamos la columna "sample" a nombres de fila:
+row.names(muestras) <- muestras$sample
+# Eliminamos la columna "sample":
+muestras$sample <- NULL
+# Y convertimos "population" y "temp" en factores:
+muestras$population <- factor(muestras$population,
+                              levels = c('maine', 'panama'))
+muestras$temp       <- factor(muestras$temp,
+                              levels = c('low', 'high'))
+muestras
+```
+En R no se aconseja abusar de los nombres en la tabla en la columna primera, puede estar en una columna segundaria, pero lo hacemos para simplificar el trabajado a DESeq. 
+
+Los factores son varibles categoricas que solo aceptan unos pocos valores concretos, y a las opciones se les llama niveles y se usan en estadistica. Por ejemplo hacemos un anova donde el primer nivel es un factor control, mientras que el resto son el resto de casos/factores con los que comparamos los resultados.
+
+Los datos del recuento deben ser números enteros en forma de matriz. Porque los datos se obtenien de un programa que cuadno no sabe si una lectura es de un gen o de otro hace una media y de ahí salen los decimales, pero los debemos eliminar y para ello usamos round.
+
+```{r}
+row.names(genex) <- genex$gene_name
+genex$gene_name <- NULL
+genex$gene_id   <- NULL
+genex <- round(as.matrix(genex))
+```
+
+```{r}
+dds1 <- DESeqDataSetFromMatrix(
+   countData = genex,
+   colData = muestras,
+   design = ~ population + temp
+)
+dds1
+```
+La ondulación son las varibles que pueden afectar a los resultados.
+
+## Pre-filtrado
+
+Elimina los genes que no se están expresando en ninigun muestra
+
+```{r}
+keep <- rowSums(counts(dds1)) > 0
+dds1 <- dds1[keep, ]
+```
+
+keep es un vector boleano (TRUE/FALSE), que será tan largo como queramos. Y en este caso cuenta todas las filas para cada uno de los genes y elimina aquellos donde no hay nada de expresión, es decir, donde es 0. Lo que permite reducir el tamaño de la tabla.
+
+## Expresión diferencial
+
+```{r}
+dds1 <- DESeq(dds1)
+```
+
+```{r}
+res <- results(dds1)
+res
+```
+
+### Ejercicio 3
+
+1.  Mira la ayuda de results() y genera también la tabla de resultados para el contraste entre las dos regiones de procedencia de las moscas.
+
+```{r}
+región <- results(dds1, c ("population", "maine", "panama"))
+región.df <- as.data.frame(región)
+```
+
+```{r}
+temperatura <- results(dds1, c ("temp", "low", "high"))
+temperatura.df <- as.data.frame(temperatura)
+```
+
+Para interpretar la tabla. La columna log2FoldChange es esencial, es el logaritmo de la diferencia de la expresión entre los valores de las moscas de disitnto sitio. Si el valor es positivo el gen se expresa más en Maine, mientras que si es negativo se exprea más en Panamá. La columna padj, es el p-valor corregido por comparaciones múltiples, se considera que un gen tiene expresión diferencial si su padj < 0.05.
+
+2.  Usa summary() sobre los resultados para ver el número de genes diferencialmente expresados entre cada par de condiciones.
+
+```{r}
+summary(res)
+```
+
+3.  ¿Cuál es la tasa de falsos positivos (FDR)?
+```{r}
+metadata(región)$alpha
+```
+
+
+## Gráficas
+```{r}
+plotMA(res)
+```
+
+```{r}
+resShrink <- lfcShrink(dds1, coef = 'temp_high_vs_low',
+                       type = 'normal')
+plotMA(resShrink)
+```
+

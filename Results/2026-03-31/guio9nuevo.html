@@ -2224,11 +2224,16 @@ vertical-align: -.125em;
 </header>
 
 
-<p>#Práctica 9: Reconstrucción filogenética#</p>
-<p>Objetivos:</p>
+<section id="práctica-9-reconstrucción-filogenética" class="level1">
+<h1>Práctica 9: Reconstrucción filogenética</h1>
+<section id="objetivos" class="level2">
+<h2 class="anchored" data-anchor-id="objetivos">Objetivos:</h2>
 <p>Obtener una filogenia calibrada de homininos y algunos primates, a partir de secuencias mitocondriales.</p>
-<p>Ejercicio 1:</p>
-<p>##1.1 Leer los datos en R</p>
+</section>
+<section id="ejercicio-1" class="level2">
+<h2 class="anchored" data-anchor-id="ejercicio-1">Ejercicio 1:</h2>
+<section id="leer-los-datos-en-r" class="level3">
+<h3 class="anchored" data-anchor-id="leer-los-datos-en-r">1.1 Leer los datos en R</h3>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(phangorn)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
@@ -2242,7 +2247,9 @@ vertical-align: -.125em;
 </div>
 </div>
 <p>Sería sensato reducir el conjunto de datos. ¿Qué secuencias eliminarías? Si quieres, puedes intentarlo con la función subset().</p>
-<p>Ejercicio: ¿Puedes confirmar el número de secuencias? Si en nseq te informa del núemro de sencuencias disponibles. En este caso es 42.</p>
+<section id="ejercicio" class="level4">
+<h4 class="anchored" data-anchor-id="ejercicio">Ejercicio:</h4>
+<p>¿Puedes confirmar el número de secuencias? Si en nseq te informa del núemro de sencuencias disponibles. En este caso es 42.</p>
 <p>¿Qué longitud tiene el alineamiento? Si, en nchar (número de carácteres, es decir la longitud). 16603</p>
 <p>¿Qué función usarías para extraer los nombres de las secuencias?</p>
 <div class="cell">
@@ -2295,7 +2302,11 @@ vertical-align: -.125em;
 </div>
 </div>
 </div>
-<p>Ejercicios ¿De qué clase son los objetos mt_nj y mt_upgma? Son árboles filogenéticos</p>
+</section>
+</section>
+<section id="ejercicios" class="level3">
+<h3 class="anchored" data-anchor-id="ejercicios">Ejercicios</h3>
+<p>¿De qué clase son los objetos mt_nj y mt_upgma? Son árboles filogenéticos</p>
 <p>Consulta la estructura de estos objetos (str(mt_nj)).</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(mt_nj)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -2311,8 +2322,11 @@ vertical-align: -.125em;
 </div>
 <p>Represéntalos gráficamente (plot(mt_nj)) y consulta la ayuda de la función plot.phylo() para saber qué opciones de representación gráfica tienes.</p>
 <p>Para qué sirven las funciones add.scale.bar() y axisPhylo()? add.scale.bar()–&gt; añade una barra de escala horizontal, que indica la longuitud de las ramas en función de los cambios posibles. axisPhylo()–&gt; añade un eje de cooordenadas concreta que muestra el tiempo o la distancia acumulada desde la raíz.</p>
-<p>##1.3 Enraizar el árbol</p>
-<p>1.3.1 Escogiendo el nodo</p>
+</section>
+<section id="enraizar-el-árbol" class="level3">
+<h3 class="anchored" data-anchor-id="enraizar-el-árbol">1.3 Enraizar el árbol</h3>
+<section id="escogiendo-el-nodo" class="level4">
+<h4 class="anchored" data-anchor-id="escogiendo-el-nodo">1.3.1 Escogiendo el nodo</h4>
 <p>Comprobamos si está enraizado el árbol: &gt; is.rooted(mt_nj) [1] FALSE</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>mt_nj_rooted <span class="ot">&lt;-</span> <span class="fu">root</span>(mt_nj, <span class="at">node =</span> <span class="dv">75</span>)</span>
@@ -2325,7 +2339,9 @@ vertical-align: -.125em;
 </div>
 </div>
 </div>
-<p>1.3.2 Con un outgroup</p>
+</section>
+<section id="con-un-outgroup" class="level4">
+<h4 class="anchored" data-anchor-id="con-un-outgroup">1.3.2 Con un outgroup</h4>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>mt_nj_rooted <span class="ot">&lt;-</span> <span class="fu">root</span>(mt_nj, <span class="at">outgroup =</span> <span class="st">&#39;G.gorilla_D38114&#39;</span>)</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(mt_nj_rooted)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -2337,7 +2353,9 @@ vertical-align: -.125em;
 </div>
 </div>
 </div>
-<p>1.3.3 En el punto medio</p>
+</section>
+<section id="en-el-punto-medio" class="level4">
+<h4 class="anchored" data-anchor-id="en-el-punto-medio">1.3.3 En el punto medio</h4>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Esto sobreescribe el objeto anterior:</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>mt_nj_rooted <span class="ot">&lt;-</span> <span class="fu">midpoint</span>(mt_nj)</span>
@@ -2352,7 +2370,10 @@ vertical-align: -.125em;
 </div>
 </div>
 </div>
-<p>##1.4 Con datación de puntas (tip dating)</p>
+</section>
+</section>
+<section id="con-datación-de-puntas-tip-dating" class="level3">
+<h3 class="anchored" data-anchor-id="con-datación-de-puntas-tip-dating">1.4 Con datación de puntas (tip dating)</h3>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>fechas <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>,</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>            <span class="sc">-</span><span class="dv">400000</span>,</span>
@@ -2413,10 +2434,15 @@ vertical-align: -.125em;
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>mt_nj_rtt <span class="ot">&lt;-</span> <span class="fu">rtt</span>(mt_nj, <span class="at">tip.dates =</span> fechas, <span class="at">objective =</span> <span class="st">&#39;rms&#39;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p>EJERCICIO ¿Se corresponden bien las distancias evolutivas estimadas con las dataciones? No todos</p>
+<section id="ejercicio-2" class="level4">
+<h4 class="anchored" data-anchor-id="ejercicio-2">EJERCICIO</h4>
+<p>¿Se corresponden bien las distancias evolutivas estimadas con las dataciones? No todos</p>
 <p>¿Qué secuencias crees que se ajustan menos a su supuesta edad? Los denisovanos, porque alguno queda por delante del chimpancé y eso no tiene mucho sentido.</p>
 <p>¿Qué razones puede haber para que la edad de una secuencia no se corresponda con la cantidad de cambios que ha acumulado? - La datación puede ser no muy precisa - Las secuecnias pueden tener cambios de nucleotidos que se deban a cambios en la muestra como desaminaciones, entonces en realidad no hay cambio aunque si que se detecte uno.</p>
-<p>##1.3.4 Distancias.</p>
+</section>
+</section>
+<section id="distancias." class="level3">
+<h3 class="anchored" data-anchor-id="distancias.">1.3.4 Distancias.</h3>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>distMat <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(distancias)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
@@ -2436,7 +2462,9 @@ vertical-align: -.125em;
 <pre><code>[1] 0.01214282</code></pre>
 </div>
 </div>
-<p>EJERCICIO: Calcula las distancias medias entre todos los grupos.</p>
+<section id="ejercicio-3" class="level4">
+<h4 class="anchored" data-anchor-id="ejercicio-3">EJERCICIO:</h4>
+<p>Calcula las distancias medias entre todos los grupos.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(distMat[bonobos, neandertales])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -2506,6 +2534,9 @@ vertical-align: -.125em;
 </div>
 </div>
 </div>
+</section>
+</section>
+</section>
 <section id="limpieza-o-filtrado-del-alineamiento" class="level2">
 <h2 class="anchored" data-anchor-id="limpieza-o-filtrado-del-alineamiento">2. LIMPIEZA O FILTRADO DEL ALINEAMIENTO</h2>
 <div class="cell">
@@ -2551,7 +2582,9 @@ H.s.neandertal_KX198082  27  22</code></pre>
 The states are a c g t </code></pre>
 </div>
 </div>
-<p>EJERCICIO ¿Serías capaz de crear otro conjunto de datos, mtdna28, que sólo contenga secuencias del género Homo?</p>
+<section id="ejercicio-4" class="level4">
+<h4 class="anchored" data-anchor-id="ejercicio-4">EJERCICIO</h4>
+<p>¿Serías capaz de crear otro conjunto de datos, mtdna28, que sólo contenga secuencias del género Homo?</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>mtdna28 <span class="ot">&lt;-</span> mtdna37[<span class="fu">grepl</span>(<span class="st">&#39;^H.&#39;</span>, <span class="fu">names</span>(mtdna37)), ]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
@@ -2559,8 +2592,8 @@ The states are a c g t </code></pre>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>mtdna36 <span class="ot">&lt;-</span> mtdna37[<span class="sc">!</span> <span class="fu">startsWith</span>(<span class="fu">names</span>(mtdna37), <span class="st">&#39;G.gorilla&#39;</span>),]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="escoger-el-modelo-de-evolución-molecular" class="level2">
-<h2 class="anchored" data-anchor-id="escoger-el-modelo-de-evolución-molecular">Escoger el modelo de evolución molecular</h2>
+<section id="escoger-el-modelo-de-evolución-molecular" class="level3">
+<h3 class="anchored" data-anchor-id="escoger-el-modelo-de-evolución-molecular">Escoger el modelo de evolución molecular</h3>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>modelos <span class="ot">&lt;-</span> <span class="fu">modelTest</span>(mtdna36, <span class="at">control =</span> <span class="fu">pml.control</span>(<span class="at">trace =</span> <span class="dv">0</span>))</span>
 <span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(modelos)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -2574,6 +2607,8 @@ The states are a c g t </code></pre>
 6     F81+I 73 -41986.64 84119.29    0 84119.94     0 84682.65</code></pre>
 </div>
 </div>
+</section>
+</section>
 </section>
 
 </main>

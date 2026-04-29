@@ -3,17 +3,20 @@ title: "Práctica 9"
 format: 
   html:
     embed-resources: true
+editor: 
+  markdown: 
+    wrap: sentence
 ---
 
-#Práctica 9: Reconstrucción filogenética#
+# Práctica 9: Reconstrucción filogenética#
 
-Objetivos:
+## Objetivos:
 
 Obtener una filogenia calibrada de homininos y algunos primates, a partir de secuencias mitocondriales.
 
-Ejercicio 1: 
+## Ejercicio 1:
 
-##1.1 Leer los datos en R
+### 1.1 Leer los datos en R
 
 ```{r}
 library(phangorn)
@@ -21,14 +24,19 @@ mtdna <- read.phyDat('../../data/mtDNA.fasta', format = 'fasta')
 glance(mtdna)
 ```
 
-Sería sensato reducir el conjunto de datos. ¿Qué secuencias eliminarías? Si quieres, puedes intentarlo con la función subset().
+Sería sensato reducir el conjunto de datos.
+¿Qué secuencias eliminarías?
+Si quieres, puedes intentarlo con la función subset().
 
-Ejercicio:
-¿Puedes confirmar el número de secuencias? 
-Si en nseq te informa del núemro de sencuencias disponibles. En este caso es 42.
+#### Ejercicio:
 
-¿Qué longitud tiene el alineamiento? 
-Si, en nchar (número de carácteres, es decir la longitud). 16603
+¿Puedes confirmar el número de secuencias?
+Si en nseq te informa del núemro de sencuencias disponibles.
+En este caso es 42.
+
+¿Qué longitud tiene el alineamiento?
+Si, en nchar (número de carácteres, es decir la longitud).
+16603
 
 ¿Qué función usarías para extraer los nombres de las secuencias?
 
@@ -49,28 +57,29 @@ plot(mt_nj)
 nodelabels()
 plot(mt_upgma)
 ```
-Ejercicios
+
+### Ejercicios
+
 ¿De qué clase son los objetos mt_nj y mt_upgma?
 Son árboles filogenéticos
 
 Consulta la estructura de estos objetos (str(mt_nj)).
+
 ```{r}
 str(mt_nj)
 ```
+
 Represéntalos gráficamente (plot(mt_nj)) y consulta la ayuda de la función plot.phylo() para saber qué opciones de representación gráfica tienes.
 
 Para qué sirven las funciones add.scale.bar() y axisPhylo()?
-add.scale.bar()--> añade una barra de escala horizontal, que indica la longuitud de las ramas en función de los cambios posibles.
-axisPhylo()--> añade un eje de cooordenadas concreta que muestra el tiempo o la distancia acumulada desde la raíz.
+add.scale.bar()--\> añade una barra de escala horizontal, que indica la longuitud de las ramas en función de los cambios posibles.
+axisPhylo()--\> añade un eje de cooordenadas concreta que muestra el tiempo o la distancia acumulada desde la raíz.
 
+### 1.3 Enraizar el árbol
 
-##1.3 Enraizar el árbol
+#### 1.3.1 Escogiendo el nodo
 
-1.3.1 Escogiendo el nodo
-
-Comprobamos si está enraizado el árbol:
-> is.rooted(mt_nj)
-[1] FALSE
+Comprobamos si está enraizado el árbol: \> is.rooted(mt_nj) \[1\] FALSE
 
 ```{r}
 #| fig-width: 10
@@ -79,7 +88,8 @@ mt_nj_rooted <- root(mt_nj, node = 75)
 plot(mt_nj_rooted)
 ```
 
-1.3.2 Con un outgroup
+#### 1.3.2 Con un outgroup
+
 ```{r}
 #| fig-width: 10
 #| fig-height: 10 
@@ -87,7 +97,8 @@ mt_nj_rooted <- root(mt_nj, outgroup = 'G.gorilla_D38114')
 plot(mt_nj_rooted)
 ```
 
-1.3.3 En el punto medio
+#### 1.3.3 En el punto medio
+
 ```{r}
 #| fig-width: 10
 #| fig-height: 10 
@@ -98,7 +109,7 @@ nodelabels(frame = 'none')
 add.scale.bar()
 ```
 
-##1.4 Con datación de puntas (tip dating)
+### 1.4 Con datación de puntas (tip dating)
 
 ```{r}
 fechas <- c(0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -114,22 +125,23 @@ fechas
 ```
 
 A continuación se escoge la posición de la raíz que optimiza la regresión entre distancia de raíz a puntas y edades de las puntas (Rambaut et al. 2016).
+
 ```{r}
 mt_nj_rtt <- rtt(mt_nj, tip.dates = fechas, objective = 'rms')
 ```
 
-EJERCICIO
+#### EJERCICIO
+
 ¿Se corresponden bien las distancias evolutivas estimadas con las dataciones?
 No todos
 
 ¿Qué secuencias crees que se ajustan menos a su supuesta edad?
-Los denisovanos, porque alguno queda por delante del chimpancé y eso no tiene mucho sentido. 
+Los denisovanos, porque alguno queda por delante del chimpancé y eso no tiene mucho sentido.
 
 ¿Qué razones puede haber para que la edad de una secuencia no se corresponda con la cantidad de cambios que ha acumulado?
-- La datación puede ser no muy precisa
-- Las secuecnias pueden tener cambios de nucleotidos que se deban a cambios en la muestra como desaminaciones, entonces en realidad no hay cambio aunque si que se detecte uno.
+- La datación puede ser no muy precisa - Las secuecnias pueden tener cambios de nucleotidos que se deban a cambios en la muestra como desaminaciones, entonces en realidad no hay cambio aunque si que se detecte uno.
 
-##1.3.4 Distancias.
+### 1.3.4 Distancias.
 
 ```{r}
 distMat <- as.matrix(distancias)
@@ -151,8 +163,10 @@ La distancia estimada media entre humanos y neandertales se puede obtener como:
 mean(distMat[modernos, neandertales])
 ```
 
-EJERCICIO:
+#### EJERCICIO:
+
 Calcula las distancias medias entre todos los grupos.
+
 ```{r}
 mean(distMat[bonobos, neandertales])
 mean(distMat[bonobos, chimpances])
@@ -165,9 +179,9 @@ mean(distMat[denisovanos, modernos])
 mean(distMat[denisovanos, neandertales])
 mean(distMat[modernos, neandertales])
 ```
+
 ¿Cuántas veces mayor es la distancia entre humanos y chimpancés que entre humanos y neandertales?
-- humano - chimpancé: 0.09104153
-- humano - neanderntal: 0.01214282  
+- humano - chimpancé: 0.09104153 - humano - neanderntal: 0.01214282\
 7,5 veces mayor.
 
 ¿Cómo calcularías la distancia media entre dos secuencias de humanos modernos?
@@ -180,17 +194,19 @@ mean(z, na.rm = TRUE)
 ```
 
 En los árboles las distancias se representan mediante la suma de las longitudes que separan las hojas.
+
 ```{r}
 distCofen <- cophenetic(mt_nj_rooted)
 ```
-
 
 ```{r}
 # Aquí usamos las matricees como vectores:
 plot(distMat, distCofen, xlab = 'Distancias F81', ylab = 'Dist. cofenéticas')
 abline(a = 0, b = 1, col = 'red', lty = 2)
 ```
+
 ## 2. LIMPIEZA O FILTRADO DEL ALINEAMIENTO
+
 ```{r}
 crudas <- dist.dna(as.DNAbin(mtdna), model = 'raw')
 crudas <- as.matrix(crudas)
@@ -203,7 +219,9 @@ identicas
 repetidas <- unique(c(identicas[, 'row'], identicas[, 'col']))
 heatmap(crudas[repetidas, repetidas], cexRow = 0.7, cexCol = 0.7)
 ```
-Tras observar el heatmap sabemos que hay 4 secuencias iguales entre ellas y las otras 3 tambien son iguales. Por lo que nos quedamos para el resto del estudio solo dos secuencias una de cada grupo.
+
+Tras observar el heatmap sabemos que hay 4 secuencias iguales entre ellas y las otras 3 tambien son iguales.
+Por lo que nos quedamos para el resto del estudio solo dos secuencias una de cada grupo.
 
 ```{r}
 # La exclamación ("!") invierte el valor lógico de lo que la sigue.
@@ -214,7 +232,8 @@ mtdna37 <- mtdna[! grepl('(KX198085|KX198086|KX198082|KX198088|KX198083)',
 mtdna37
 ```
 
-EJERCICIO
+#### EJERCICIO
+
 ¿Serías capaz de crear otro conjunto de datos, mtdna28, que sólo contenga secuencias del género Homo?
 
 ```{r}
@@ -225,11 +244,9 @@ mtdna28 <- mtdna37[grepl('^H.', names(mtdna37)), ]
 mtdna36 <- mtdna37[! startsWith(names(mtdna37), 'G.gorilla'),]
 ```
 
-
-## Escoger el modelo de evolución molecular
+### Escoger el modelo de evolución molecular
 
 ```{r}
 modelos <- modelTest(mtdna36, control = pml.control(trace = 0))
 head(modelos)
 ```
-

@@ -5,15 +5,15 @@ format:
     embed-resources: true
 ---
 
-#Práctica 9: Reconstrucción filogenética#
+# Práctica 9: Reconstrucción filogenética#
 
-Objetivos:
+## Objetivos:
 
 Obtener una filogenia calibrada de homininos y algunos primates, a partir de secuencias mitocondriales.
 
-Ejercicio 1: 
+## Ejercicio 1: 
 
-1.1 Leer los datos en R
+### 1.1 Leer los datos en R
 
 ```{r}
 library(phangorn)
@@ -23,7 +23,7 @@ glance(mtdna)
 
 Sería sensato reducir el conjunto de datos. ¿Qué secuencias eliminarías? Si quieres, puedes intentarlo con la función subset().
 
-1.2 Escoger el modelo de evolución
+### 1.2 Escoger el modelo de evolución
 
 ```{r}
 modelos <- modelTest(mtdna, control = pml.control(trace = 0))
@@ -63,7 +63,7 @@ axisPhylo()
 
 ¿Por qué usamos midpoint() al representar gráficamente el árbol de NJ?
 
-1.3 Enraizar el árbol
+### 1.3 Enraizar el árbol
 ```{r}
 enraizado <- root(mt_nj, 'G.gorilla_D38114')
 ```
@@ -89,7 +89,8 @@ nodelabels()
 homo <- extract.clade(mt_ml, 62)
 plot(midpoint(homo))
 ```
-1.4 Con datación de puntas (tip dating)
+
+### 1.4 Con datación de puntas (tip dating)
 ```{r}
 fechas <- c(0, 0, 0, 0, 0, 0, 0, 0, 0,
               -400000,

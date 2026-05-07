@@ -92,14 +92,14 @@ coincidencias <- buc2blo[
 
 Pero para que sea más visual. Hayq ue asegurarse que los valores E de las parejas que coinciden sean bajos. Que no hayan muchos gaps (que la distancia entre una secuencia y otra, donde empieza y donde acaba y espacios entre medias no sean muy grandes).
 
-#Ejercicio 2. PSI-BLAST#
+# Ejercicio 2. PSI-BLAST#
 ```{bash}
 # Como Swissprot debería estar ya descargada en `../../data`, podemos sacar
 # de ahí la secuencia de la proteína escogida:
-blastdbcmd -db ../../data/swissprot -entry P39615 -out P39615.fa
+~/bin/blastdbcmd -db ../../data/swissprot -entry P39615 -out P39615.fa
 
 # Y ahora la usamos como query en psi-blast:
-psiblast -db ../../data/swissprot \
+~/bin/psiblast -db ../../data/swissprot \
          -query P39615.fa \
          -out P39615.blastout.txt \
          -evalue 0.1 \
@@ -118,7 +118,7 @@ el loop debe acabar con un done: psiblast
 El E-valor es alto para encontrar más similitudes.
    
 
-#Ejercicio 3. Origen de la contaminación en un archivo FASTQ#  
+# Ejercicio 3. Origen de la contaminación en un archivo FASTQ#  
 
 SELECCIÓN ALEATORIA DE 20 QUERIES
 ```{r}

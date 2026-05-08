@@ -69,7 +69,9 @@ fi
 
 ### GALBA
 
-GALBA usa miniprot para mapear las evidencia qe le han proorcionadao (las secuencias descargadas contra el ensamblaje) Y Augustus (se entrena automaticamente para identificar los genes mediante el alineamiento) \#### Ejercicio 4
+GALBA usa miniprot para mapear las evidencia qe le han proorcionadao (las secuencias descargadas contra el ensamblaje) Y Augustus (se entrena automaticamente para identificar los genes mediante el alineamiento)
+
+#### Ejercicio 4
 
 ```{bash}
 #| eval: false

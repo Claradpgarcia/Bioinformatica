@@ -131,8 +131,10 @@ Ver a que velocidad está mutando el ADN mitocondrial y estimlar fechas y edades
 ```{r}
 estimate.mu(mt_ml, fechas, p.tol = 0.05)
 ```
+
 El número de bases que cambian al año en el genoma mitocondrial
 ```{r}
+#| warning: false
 estimate.dates (mt_ml, fechas, mu = estimate.mu(mt_ml, fechas),
                min.date = .Machine$double.xmax, show.steps = 0,
                opt.tol = 1e-8, nsteps = 1000,

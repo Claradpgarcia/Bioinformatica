@@ -1,6 +1,8 @@
 ---
 title: "Práctica 8 BLAST"
 format: html
+engine: knitr
+embed-resources: true
 ---
 
 # Ejercicio 1 #

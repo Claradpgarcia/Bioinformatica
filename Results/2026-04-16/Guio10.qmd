@@ -108,7 +108,7 @@ Se crea la carpeta asm1
 ```{bash}
 #| cache: true
 if [ ! -e asm1/At4.bp.p_ctg.gfa ]; then
-   /Users/claragarciacardona/miniconda3/bin/hifiasm -o asm1/At4 -t 2 -f 0 ../../data/At4.10.fa 2> asm1/hifiasm.log
+   /../../miniconda3/bin/hifiasm -o asm1/At4 -t 2 -f 0 ../../data/At4.10.fa 2> asm1/hifiasm.log
 fi
 ```
 
@@ -152,4 +152,16 @@ No hay un segundo pico que podría indicar que es heterocigota por lo que se int
 awk '(/^S/){print ">" $2 "\n" $3}' asm1/At4.bp.p_ctg.gfa > asm1/At4.fa
 ```
 
-
+## Extra
+```{r}
+library(Biostrings)
+asm1 <- readDNAStringSet('asm1/At4.fa')
+asm1.len <- data.frame(
+  len = sort(width(asm1),
+             decreasing = TRUE)
+)
+asm1.len$cumlen <- cumsum(asm1.len$len)
+asm1.len$cumprop <- asm1.len$cumlen / 
+                    sum(asm1.len$len)
+asm1.len
+```
